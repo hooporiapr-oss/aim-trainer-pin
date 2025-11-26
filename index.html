@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akashic Aim Trainer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,serif;background:linear-gradient(135deg,#0a0e27,#1a1034,#2d1b4e);min-height:100vh;color:#e8e8f0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+.title{font-size:2.3em;font-weight:bold;background:linear-gradient(135deg,#ffd700,#ff8c00,#8a2be2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;text-align:center}
+.subtitle{color:#d4af37;font-size:1.2em;font-style:italic;text-align:center;margin-bottom:30px}
+.container{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:3px solid rgba(212,175,55,0.5);border-radius:20px;padding:30px;width:100%;max-width:520px}
+.hidden{display:none!important}
+.trials-banner{position:fixed;top:20px;right:20px;background:rgba(255,215,0,0.2);border:2px solid rgba(255,215,0,0.5);color:#ffd700;padding:12px 20px;border-radius:15px;z-index:1000}
+.back-home{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:2px solid rgba(212,175,55,0.3);border-radius:20px;color:#ffd700;text-decoration:none;z-index:1000}
+.redirect-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;z-index:5000;padding:20px}
+.redirect-popup{background:linear-gradient(135deg,#1a1034,#2d1b4e);border:2px solid rgba(255,215,0,0.3);border-radius:20px;padding:30px 25px;max-width:340px;text-align:center}
+.redirect-emoji{font-size:3em;margin-bottom:15px}
+.redirect-title{color:#e8e8f0;font-size:1.2em;margin-bottom:8px}
+.redirect-subtitle{color:#a0a0b8;font-size:0.9em;margin-bottom:25px}
+.redirect-home-btn{display:block;width:100%;padding:15px;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.2);border-radius:12px;color:#e8e8f0;text-decoration:none;margin-bottom:10px;font-family:Georgia,serif}
+.redirect-home-text{color:#888;font-size:0.85em;margin-bottom:20px}
+.redirect-or{display:flex;align-items:center;gap:12px;margin:20px 0;color:#555}
+.redirect-or::before,.redirect-or::after{content:"";flex:1;height:1px;background:rgba(255,255,255,0.1)}
+.redirect-pro-btn{width:100%;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1034;border:none;padding:15px;border-radius:25px;font-weight:bold;cursor:pointer;font-family:Georgia,serif}
+.pin-title{color:#ffd700;font-size:1.5em;text-align:center;margin-bottom:10px}
+.pin-subtitle{color:#b8b8cc;text-align:center;margin-bottom:30px}
+.pin-dots{display:flex;justify-content:center;gap:15px;margin-bottom:30px}
+.pin-dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(212,175,55,0.5);transition:all 0.2s}
+.pin-dot.filled{background:#ffd700;border-color:#ffd700;box-shadow:0 0 10px rgba(255,215,0,0.5)}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;margin:0 auto 20px}
+.pin-key{aspect-ratio:1;font-size:1.8em;border:2px solid rgba(212,175,55,0.3);background:rgba(255,255,255,0.05);color:#e8e8f0;border-radius:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif}
+.pin-key:active{transform:scale(0.95)}
+.pin-key.delete{font-size:1.2em}
+.pin-key.empty{visibility:hidden}
+.pin-message{text-align:center;min-height:24px;margin-top:15px}
+.pin-message.error{color:#ff6b6b}
+.pin-message.success{color:#4ecdc4}
+.pin-toggle{text-align:center;margin-top:25px;color:#b8b8cc}
+.pin-toggle-link{color:#ffd700;cursor:pointer;text-decoration:underline}
+.button{width:100%;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1034;border:none;padding:16px;border-radius:30px;font-size:1.1em;font-weight:bold;cursor:pointer;font-family:Georgia,serif;margin-top:10px}
+.button:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,215,0,0.6)}
+.button.secondary{background:linear-gradient(135deg,#8a2be2,#4b0082);color:#fff}
+.welcome-box{background:rgba(255,215,0,0.1);border:2px solid rgba(255,215,0,0.3);border-radius:15px;padding:20px;margin-bottom:20px;text-align:center}
+.welcome-box h3{color:#ffd700;margin-bottom:8px;font-size:1.3em}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.stat-box{background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;text-align:center;border:1px solid rgba(212,175,55,0.2)}
+.stat-value{font-size:1.8em;color:#ffd700;font-weight:bold}
+.stat-label{color:#b8b8cc;font-size:0.85em;margin-top:5px}
+.game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.05);border-radius:12px}
+.game-stat{text-align:center}
+.game-stat-value{font-size:1.4em;color:#ffd700;font-weight:bold}
+.game-stat-label{color:#b8b8cc;font-size:0.7em;text-transform:uppercase}
+.aim-arena{position:relative;width:100%;height:320px;background:rgba(0,0,0,0.4);border-radius:15px;border:2px solid rgba(212,175,55,0.3);overflow:hidden;cursor:crosshair;margin-bottom:15px;-webkit-tap-highlight-color:transparent;user-select:none}
+.target{position:absolute;border-radius:50%;cursor:pointer;transform:translate(-50%,-50%);animation:targetPop 0.15s ease-out}
+@keyframes targetPop{from{transform:translate(-50%,-50%) scale(0)}to{transform:translate(-50%,-50%) scale(1)}}
+.target-outer{width:100%;height:100%;border-radius:50%;background:linear-gradient(145deg,#e74c3c,#c0392b);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(231,76,60,0.5)}
+.target-middle{width:60%;height:60%;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.target-inner{width:50%;height:50%;border-radius:50%;background:#e74c3c}
+.hit-marker{position:absolute;pointer-events:none;color:#2ecc71;font-size:1.5em;font-weight:bold;animation:hitPop 0.4s ease-out forwards}
+@keyframes hitPop{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-80%) scale(1.3)}}
+.countdown-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+.countdown-number{font-size:5em;color:#ffd700;font-weight:bold;animation:countPulse 0.5s ease-out}
+@keyframes countPulse{from{transform:scale(1.5);opacity:0}to{transform:scale(1);opacity:1}}
+.countdown-text{color:#b8b8cc;font-size:1.2em;margin-top:10px}
+.size-select{margin:20px 0}
+.size-select label{color:#b8b8cc;display:block;margin-bottom:10px;text-align:center}
+.size-buttons{display:flex;gap:10px;justify-content:center}
+.size-btn{padding:10px 20px;border:2px solid rgba(212,175,55,0.3);background:rgba(255,255,255,0.05);color:#e8e8f0;border-radius:10px;cursor:pointer;font-family:Georgia,serif;font-size:1em;transition:all 0.2s}
+.size-btn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.5)}
+.size-btn.selected{background:rgba(255,215,0,0.2);border-color:#ffd700;color:#ffd700}
+.results-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:3000;padding:20px}
+.results-card{background:linear-gradient(135deg,#1a1034,#2d1b4e);border:3px solid #ffd700;border-radius:25px;padding:35px 25px;max-width:400px;width:100%;text-align:center;animation:popIn 0.4s}
+@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.results-icon{font-size:3.5em;margin-bottom:15px}
+.results-title{font-size:1.6em;color:#ffd700;margin-bottom:15px}
+.results-score{font-size:3em;color:#ffd700;font-weight:bold}
+.results-score-label{color:#b8b8cc;margin-bottom:20px}
+.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.results-stat{background:rgba(255,255,255,0.05);padding:12px;border-radius:10px}
+.results-stat-value{font-size:1.5em;color:#ffd700;font-weight:bold}
+.results-stat-label{font-size:0.8em;color:#b8b8cc}
+.results-record{background:rgba(255,215,0,0.2);border:2px solid #ffd700;border-radius:10px;padding:12px;margin:15px 0;color:#ffd700;font-weight:bold}
+.results-rating{font-size:1.2em;color:#d4af37;margin-bottom:20px}
+.instructions{background:rgba(138,43,226,0.1);border:2px solid rgba(138,43,226,0.3);border-radius:15px;padding:12px;margin-top:12px}
+.instructions h4{color:#8a2be2;margin-bottom:6px;text-align:center;font-size:0.95em}
+.instructions p{color:#c4c4d4;line-height:1.4;text-align:center;font-size:0.85em}
+@media(max-width:768px){.title{font-size:1.9em}.container{padding:20px 15px}.back-home{position:relative;top:auto;left:auto;display:inline-block;margin-bottom:15px}.aim-arena{height:280px}.pin-keypad{max-width:240px}.pin-key{font-size:1.5em}.size-buttons{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<a href="https://hooporiapr-oss.github.io/akashic-works/" class="back-home">← Back to Home</a>
+<div class="title">🎯 Akashic Aim Trainer</div>
+<div class="subtitle">Test Your Precision</div>
+
+<div class="container" id="pinLoginScreen">
+<div class="pin-title">Enter PIN</div>
+<div class="pin-subtitle">Enter your 4-digit PIN to play</div>
+<div class="pin-dots">
+<div class="pin-dot" id="dot1"></div>
+<div class="pin-dot" id="dot2"></div>
+<div class="pin-dot" id="dot3"></div>
+<div class="pin-dot" id="dot4"></div>
+</div>
+<div class="pin-keypad">
+<button class="pin-key" data-num="1">1</button>
+<button class="pin-key" data-num="2">2</button>
+<button class="pin-key" data-num="3">3</button>
+<button class="pin-key" data-num="4">4</button>
+<button class="pin-key" data-num="5">5</button>
+<button class="pin-key" data-num="6">6</button>
+<button class="pin-key" data-num="7">7</button>
+<button class="pin-key" data-num="8">8</button>
+<button class="pin-key" data-num="9">9</button>
+<button class="pin-key empty"></button>
+<button class="pin-key" data-num="0">0</button>
+<button class="pin-key delete">⌫</button>
+</div>
+<div class="pin-message" id="pinMessage"></div>
+<div class="pin-toggle">No account? <span class="pin-toggle-link" id="showCreatePin">Create PIN</span></div>
+</div>
+
+<div class="container hidden" id="pinCreateScreen">
+<div class="pin-title" id="createPinTitle">Create PIN</div>
+<div class="pin-subtitle" id="createPinSubtitle">Choose a 4-digit PIN</div>
+<div class="pin-dots">
+<div class="pin-dot" id="createDot1"></div>
+<div class="pin-dot" id="createDot2"></div>
+<div class="pin-dot" id="createDot3"></div>
+<div class="pin-dot" id="createDot4"></div>
+</div>
+<div class="pin-keypad">
+<button class="pin-key" data-num="1">1</button>
+<button class="pin-key" data-num="2">2</button>
+<button class="pin-key" data-num="3">3</button>
+<button class="pin-key" data-num="4">4</button>
+<button class="pin-key" data-num="5">5</button>
+<button class="pin-key" data-num="6">6</button>
+<button class="pin-key" data-num="7">7</button>
+<button class="pin-key" data-num="8">8</button>
+<button class="pin-key" data-num="9">9</button>
+<button class="pin-key empty"></button>
+<button class="pin-key" data-num="0">0</button>
+<button class="pin-key delete">⌫</button>
+</div>
+<div class="pin-message" id="createPinMessage"></div>
+<div class="pin-toggle">Already have a PIN? <span class="pin-toggle-link" id="showLoginPin">Login</span></div>
+</div>
+
+<div class="container hidden" id="dashboardScreen">
+<div class="welcome-box">
+<h3>Welcome Back! 🎯</h3>
+<p style="color:#b8b8cc">How fast can you hit the targets?</p>
+</div>
+<div class="stats-grid">
+<div class="stat-box"><div class="stat-value" id="dashGames">0</div><div class="stat-label">Games</div></div>
+<div class="stat-box"><div class="stat-value" id="dashBest">--</div><div class="stat-label">Best Avg</div></div>
+<div class="stat-box"><div class="stat-value" id="dashAccuracy">--</div><div class="stat-label">Accuracy</div></div>
+<div class="stat-box"><div class="stat-value" id="dashRating">--</div><div class="stat-label">Rating</div></div>
+</div>
+<div class="size-select">
+<label>Target Size</label>
+<div class="size-buttons">
+<button class="size-btn" data-size="80">Large</button>
+<button class="size-btn selected" data-size="60">Medium</button>
+<button class="size-btn" data-size="40">Small</button>
+</div>
+</div>
+<button class="button" id="startPlayingBtn">🎯 Start Game</button>
+<button class="button secondary" id="dashLogoutBtn">Logout</button>
+</div>
+
+<div class="container hidden" id="gameScreen">
+<div class="game-header">
+<div class="game-stat"><div class="game-stat-value" id="hitsDisplay">0/30</div><div class="game-stat-label">Hits</div></div>
+<div class="game-stat"><div class="game-stat-value" id="avgDisplay">0ms</div><div class="game-stat-label">Avg Time</div></div>
+<div class="game-stat"><div class="game-stat-value" id="accuracyDisplay">100%</div><div class="game-stat-label">Accuracy</div></div>
+</div>
+<div class="aim-arena" id="aimArena">
+<div class="countdown-overlay" id="countdownOverlay">
+<div class="countdown-number" id="countdownNumber">3</div>
+<div class="countdown-text">Get Ready!</div>
+</div>
+</div>
+<button class="button secondary" id="gameBackBtn">← Back to Menu</button>
+<div class="instructions">
+<h4>How to Play</h4>
+<p>Click the targets as fast as you can! Hit 30 targets to complete the round.</p>
+</div>
+</div>
+
+<div class="results-overlay hidden" id="resultsOverlay">
+<div class="results-card">
+<div class="results-icon" id="resultsIcon">🎯</div>
+<div class="results-title">Game Complete!</div>
+<div class="results-score" id="resultsScore">0ms</div>
+<div class="results-score-label">Average Time</div>
+<div class="results-stats">
+<div class="results-stat"><div class="results-stat-value" id="resultsHits">0</div><div class="results-stat-label">Hits</div></div>
+<div class="results-stat"><div class="results-stat-value" id="resultsMisses">0</div><div class="results-stat-label">Misses</div></div>
+<div class="results-stat"><div class="results-stat-value" id="resultsAccuracy">0%</div><div class="results-stat-label">Accuracy</div></div>
+<div class="results-stat"><div class="results-stat-value" id="resultsFastest">0ms</div><div class="results-stat-label">Fastest</div></div>
+</div>
+<div class="results-record hidden" id="resultsRecord">🏆 New Personal Record!</div>
+<div class="results-rating" id="resultsRating">Rating: --</div>
+<button class="button" id="playAgainBtn">🔄 Play Again</button>
+<button class="button secondary" id="resultsMenuBtn">Back to Menu</button>
+</div>
+</div>
+
+<div class="redirect-overlay hidden" id="redirectPopup">
+<div class="redirect-popup">
+<div class="redirect-emoji">⏸️</div>
+<div class="redirect-title">Aim Trainer pauses here for today...</div>
+<div class="redirect-subtitle">You have used your 3 free sessions</div>
+<a href="https://hooporiapr-oss.github.io/akashic-works/" class="redirect-home-btn">Return to Home</a>
+<div class="redirect-home-text">Try other free Akashic games</div>
+<div class="redirect-or">or</div>
+<button class="redirect-pro-btn" id="upgradeBtn">Unlock Unlimited Access</button>
+</div>
+</div>
+
+<script>
+var PIN_KEY = "akashic_aim_pin";
+var STATS_KEY = "akashic_aim_stats";
+var TRIES_KEY = "akashic_aim_tries";
+var FREE_TRIES = 3;
+var TOTAL_TARGETS = 30;
+
+function hashPIN(p) {
+var h = 0;
+var s = p + "akashic2024";
+for (var i = 0; i < s.length; i++) {
+h = ((h << 5) - h) + s.charCodeAt(i);
+h = h & h;
+}
+return h.toString(36);
+}
+
+function hasPIN() { return !!localStorage.getItem(PIN_KEY); }
+function verifyPIN(p) { return localStorage.getItem(PIN_KEY) === hashPIN(p); }
+function createPINStore(p) {
+localStorage.setItem(PIN_KEY, hashPIN(p));
+localStorage.setItem(STATS_KEY, JSON.stringify({gamesPlayed:0, bestAvg:null, totalAccuracy:0}));
+}
+function getStats() {
+var s = localStorage.getItem(STATS_KEY);
+return s ? JSON.parse(s) : {gamesPlayed:0, bestAvg:null, totalAccuracy:0};
+}
+function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+
+function getTriesData() {
+var d = localStorage.getItem(TRIES_KEY);
+if (!d) return {tries:0, lastReset:new Date().toDateString()};
+return JSON.parse(d);
+}
+function saveTriesData(d) { localStorage.setItem(TRIES_KEY, JSON.stringify(d)); }
+
+function canUserPlay() {
+var d = getTriesData();
+if (d.lastReset !== new Date().toDateString()) {
+d.tries = 0;
+d.lastReset = new Date().toDateString();
+}
+saveTriesData(d);
+return {canPlay: d.tries < FREE_TRIES, triesLeft: FREE_TRIES - d.tries};
+}
+
+function recordPlay() {
+var d = getTriesData();
+if (d.lastReset !== new Date().toDateString()) {
+d.tries = 0;
+d.lastReset = new Date().toDateString();
+}
+d.tries++;
+saveTriesData(d);
+updateTriesBanner();
+}
+
+function updateTriesBanner() {
+var s = canUserPlay();
+var old = document.querySelector(".trials-banner");
+if (old) old.remove();
+var b = document.createElement("div");
+b.className = "trials-banner";
+b.textContent = "🎮 " + s.triesLeft + " free " + (s.triesLeft === 1 ? "try" : "tries") + " today";
+document.body.appendChild(b);
+}
+
+function showRedirectPopup() {
+document.getElementById("redirectPopup").classList.remove("hidden");
+}
+
+var currentPIN = "";
+var confirmPIN = "";
+var isConfirming = false;
+var targetSize = 60;
+
+function showScreen(id) {
+var containers = document.querySelectorAll(".container");
+for (var i = 0; i < containers.length; i++) {
+containers[i].classList.add("hidden");
+}
+document.getElementById(id).classList.remove("hidden");
+}
+
+function updatePinDots(prefix, len) {
+for (var i = 1; i <= 4; i++) {
+var dot = document.getElementById(prefix + i);
+if (dot) {
+if (i <= len) dot.classList.add("filled");
+else dot.classList.remove("filled");
+}
+}
+}
+
+function showPinMessage(id, msg, err) {
+var el = document.getElementById(id);
+el.textContent = msg;
+el.className = "pin-message " + (err ? "error" : "success");
+}
+
+function clearPinMessage(id) {
+var el = document.getElementById(id);
+el.textContent = "";
+el.className = "pin-message";
+}
+
+function handleLoginKey(num) {
+if (currentPIN.length < 4) {
+currentPIN += num;
+updatePinDots("dot", currentPIN.length);
+if (currentPIN.length === 4) {
+setTimeout(function() {
+if (verifyPIN(currentPIN)) {
+loadDashboard();
+} else {
+showPinMessage("pinMessage", "Wrong PIN", true);
+currentPIN = "";
+updatePinDots("dot", 0);
+}
+}, 200);
+}
+}
+}
+
+function handleLoginDel() {
+if (currentPIN.length > 0) {
+currentPIN = currentPIN.slice(0, -1);
+updatePinDots("dot", currentPIN.length);
+clearPinMessage("pinMessage");
+}
+}
+
+function handleCreateKey(num) {
+if (confirmPIN.length < 4) {
+confirmPIN += num;
+updatePinDots("createDot", confirmPIN.length);
+if (confirmPIN.length === 4) {
+setTimeout(function() {
+if (!isConfirming) {
+currentPIN = confirmPIN;
+confirmPIN = "";
+isConfirming = true;
+document.getElementById("createPinTitle").textContent = "Confirm PIN";
+document.getElementById("createPinSubtitle").textContent = "Enter your PIN again";
+updatePinDots("createDot", 0);
+} else {
+if (confirmPIN === currentPIN) {
+createPINStore(currentPIN);
+showPinMessage("createPinMessage", "PIN created!", false);
+setTimeout(function() { loadDashboard(); }, 500);
+} else {
+showPinMessage("createPinMessage", "PINs do not match", true);
+currentPIN = "";
+confirmPIN = "";
+isConfirming = false;
+document.getElementById("createPinTitle").textContent = "Create PIN";
+document.getElementById("createPinSubtitle").textContent = "Choose a 4-digit PIN";
+updatePinDots("createDot", 0);
+}
+}
+}, 200);
+}
+}
+}
+
+function handleCreateDel() {
+if (confirmPIN.length > 0) {
+confirmPIN = confirmPIN.slice(0, -1);
+updatePinDots("createDot", confirmPIN.length);
+clearPinMessage("createPinMessage");
+}
+}
+
+function loadDashboard() {
+var stats = getStats();
+document.getElementById("dashGames").textContent = stats.gamesPlayed || 0;
+document.getElementById("dashBest").textContent = stats.bestAvg ? stats.bestAvg + "ms" : "--";
+document.getElementById("dashAccuracy").textContent = stats.gamesPlayed > 0 ? Math.round(stats.totalAccuracy / stats.gamesPlayed) + "%" : "--";
+document.getElementById("dashRating").textContent = getRating(stats.bestAvg);
+showScreen("dashboardScreen");
+updateTriesBanner();
+if (!canUserPlay().canPlay) showRedirectPopup();
+}
+
+function getRating(ms) {
+if (!ms) return "--";
+if (ms <= 300) return "🎯 Sniper";
+if (ms <= 400) return "⭐ Master";
+if (ms <= 500) return "🔥 Expert";
+if (ms <= 650) return "👍 Good";
+return "📚 Learning";
+}
+
+var hits = 0;
+var misses = 0;
+var reactionTimes = [];
+var targetStartTime = 0;
+var gameActive = false;
+var arena = null;
+var currentTarget = null;
+
+function startGame() {
+if (!canUserPlay().canPlay) {
+showRedirectPopup();
+return;
+}
+hits = 0;
+misses = 0;
+reactionTimes = [];
+gameActive = false;
+arena = document.getElementById("aimArena");
+document.getElementById("hitsDisplay").textContent = "0/" + TOTAL_TARGETS;
+document.getElementById("avgDisplay").textContent = "0ms";
+document.getElementById("accuracyDisplay").textContent = "100%";
+document.getElementById("resultsOverlay").classList.add("hidden");
+showScreen("gameScreen");
+startCountdown();
+}
+
+function startCountdown() {
+var overlay = document.getElementById("countdownOverlay");
+var numEl = document.getElementById("countdownNumber");
+overlay.classList.remove("hidden");
+var count = 3;
+numEl.textContent = count;
+var countInterval = setInterval(function() {
+count--;
+if (count > 0) {
+numEl.textContent = count;
+numEl.style.animation = "none";
+numEl.offsetHeight;
+numEl.style.animation = "countPulse 0.5s ease-out";
+} else {
+clearInterval(countInterval);
+overlay.classList.add("hidden");
+gameActive = true;
+spawnTarget();
+}
+}, 800);
+}
+
+function spawnTarget() {
+if (!gameActive) return;
+if (currentTarget) {
+arena.removeChild(currentTarget);
+}
+var padding = targetSize / 2 + 10;
+var maxX = arena.offsetWidth - padding;
+var maxY = arena.offsetHeight - padding;
+var x = padding + Math.random() * (maxX - padding);
+var y = padding + Math.random() * (maxY - padding);
+var target = document.createElement("div");
+target.className = "target";
+target.style.width = targetSize + "px";
+target.style.height = targetSize + "px";
+target.style.left = x + "px";
+target.style.top = y + "px";
+target.innerHTML = '<div class="target-outer"><div class="target-middle"><div class="target-inner"></div></div></div>';
+target.addEventListener("click", function(e) {
+e.stopPropagation();
+handleHit(x, y);
+});
+target.addEventListener("touchstart", function(e) {
+e.preventDefault();
+e.stopPropagation();
+handleHit(x, y);
+}, {passive: false});
+arena.appendChild(target);
+currentTarget = target;
+targetStartTime = performance.now();
+}
+
+function handleHit(x, y) {
+if (!gameActive) return;
+var reactionTime = Math.round(performance.now() - targetStartTime);
+reactionTimes.push(reactionTime);
+hits++;
+var hitMarker = document.createElement("div");
+hitMarker.className = "hit-marker";
+hitMarker.textContent = "+" + reactionTime + "ms";
+hitMarker.style.left = x + "px";
+hitMarker.style.top = y + "px";
+arena.appendChild(hitMarker);
+setTimeout(function() {
+if (hitMarker.parentNode) hitMarker.parentNode.removeChild(hitMarker);
+}, 400);
+updateStats();
+if (hits >= TOTAL_TARGETS) {
+gameOver();
+} else {
+spawnTarget();
+}
+}
+
+function handleMiss(e) {
+if (!gameActive) return;
+if (e.target.classList.contains("target") || e.target.classList.contains("target-outer") || 
+e.target.classList.contains("target-middle") || e.target.classList.contains("target-inner")) return;
+misses++;
+updateStats();
+}
+
+function updateStats() {
+document.getElementById("hitsDisplay").textContent = hits + "/" + TOTAL_TARGETS;
+if (reactionTimes.length > 0) {
+var sum = 0;
+for (var i = 0; i < reactionTimes.length; i++) sum += reactionTimes[i];
+var avg = Math.round(sum / reactionTimes.length);
+document.getElementById("avgDisplay").textContent = avg + "ms";
+}
+var total = hits + misses;
+var accuracy = total > 0 ? Math.round((hits / total) * 100) : 100;
+document.getElementById("accuracyDisplay").textContent = accuracy + "%";
+}
+
+function gameOver() {
+gameActive = false;
+if (currentTarget && currentTarget.parentNode) {
+arena.removeChild(currentTarget);
+currentTarget = null;
+}
+var sum = 0;
+var fastest = reactionTimes[0] || 0;
+for (var i = 0; i < reactionTimes.length; i++) {
+sum += reactionTimes[i];
+if (reactionTimes[i] < fastest) fastest = reactionTimes[i];
+}
+var avgTime = Math.round(sum / reactionTimes.length);
+var total = hits + misses;
+var accuracy = total > 0 ? Math.round((hits / total) * 100) : 100;
+var stats = getStats();
+stats.gamesPlayed++;
+stats.totalAccuracy += accuracy;
+var isRecord = !stats.bestAvg || avgTime < stats.bestAvg;
+if (isRecord) stats.bestAvg = avgTime;
+saveStats(stats);
+recordPlay();
+showResults(avgTime, accuracy, fastest, isRecord);
+}
+
+function showResults(avgTime, accuracy, fastest, isRecord) {
+document.getElementById("resultsScore").textContent = avgTime + "ms";
+document.getElementById("resultsHits").textContent = hits;
+document.getElementById("resultsMisses").textContent = misses;
+document.getElementById("resultsAccuracy").textContent = accuracy + "%";
+document.getElementById("resultsFastest").textContent = fastest + "ms";
+document.getElementById("resultsRating").textContent = "Rating: " + getRating(avgTime);
+document.getElementById("resultsRecord").classList.toggle("hidden", !isRecord);
+document.getElementById("resultsIcon").textContent = avgTime <= 400 ? "🏆" : avgTime <= 550 ? "⭐" : "🎯";
+document.getElementById("resultsOverlay").classList.remove("hidden");
+if (!canUserPlay().canPlay) {
+setTimeout(function() { showRedirectPopup(); }, 2000);
+}
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+var loginKeys = document.querySelectorAll("#pinLoginScreen .pin-key[data-num]");
+for (var i = 0; i < loginKeys.length; i++) {
+loginKeys[i].addEventListener("click", function() { handleLoginKey(this.dataset.num); });
+}
+document.querySelector("#pinLoginScreen .pin-key.delete").addEventListener("click", handleLoginDel);
+
+var createKeys = document.querySelectorAll("#pinCreateScreen .pin-key[data-num]");
+for (var i = 0; i < createKeys.length; i++) {
+createKeys[i].addEventListener("click", function() { handleCreateKey(this.dataset.num); });
+}
+document.querySelector("#pinCreateScreen .pin-key.delete").addEventListener("click", handleCreateDel);
+
+document.getElementById("showCreatePin").addEventListener("click", function() {
+currentPIN = "";
+confirmPIN = "";
+isConfirming = false;
+document.getElementById("createPinTitle").textContent = "Create PIN";
+document.getElementById("createPinSubtitle").textContent = "Choose a 4-digit PIN";
+updatePinDots("createDot", 0);
+clearPinMessage("createPinMessage");
+showScreen("pinCreateScreen");
+});
+
+document.getElementById("showLoginPin").addEventListener("click", function() {
+currentPIN = "";
+updatePinDots("dot", 0);
+clearPinMessage("pinMessage");
+showScreen("pinLoginScreen");
+});
+
+var sizeBtns = document.querySelectorAll(".size-btn");
+for (var i = 0; i < sizeBtns.length; i++) {
+sizeBtns[i].addEventListener("click", function() {
+for (var j = 0; j < sizeBtns.length; j++) {
+sizeBtns[j].classList.remove("selected");
+}
+this.classList.add("selected");
+targetSize = parseInt(this.dataset.size);
+});
+}
+
+document.getElementById("startPlayingBtn").addEventListener("click", function() {
+if (!canUserPlay().canPlay) { showRedirectPopup(); return; }
+startGame();
+});
+
+document.getElementById("dashLogoutBtn").addEventListener("click", function() {
+currentPIN = "";
+updatePinDots("dot", 0);
+showScreen("pinLoginScreen");
+});
+
+document.getElementById("aimArena").addEventListener("click", handleMiss);
+
+document.getElementById("gameBackBtn").addEventListener("click", function() {
+gameActive = false;
+if (currentTarget && currentTarget.parentNode) {
+document.getElementById("aimArena").removeChild(currentTarget);
+currentTarget = null;
+}
+loadDashboard();
+});
+
+document.getElementById("playAgainBtn").addEventListener("click", function() {
+if (!canUserPlay().canPlay) {
+document.getElementById("resultsOverlay").classList.add("hidden");
+showRedirectPopup();
+return;
+}
+startGame();
+});
+
+document.getElementById("resultsMenuBtn").addEventListener("click", function() {
+document.getElementById("resultsOverlay").classList.add("hidden");
+loadDashboard();
+});
+
+document.getElementById("upgradeBtn").addEventListener("click", function() {
+window.location.href = "mailto:support@akashic.works?subject=Pro%20Upgrade";
+});
+
+if (hasPIN()) {
+showScreen("pinLoginScreen");
+} else {
+showScreen("pinCreateScreen");
+}
+});
+</script>
+</body>
+</html>
