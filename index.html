@@ -2,667 +2,158 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akashic Aim Trainer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Aim Trainer</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Georgia,serif;background:linear-gradient(135deg,#0a0e27,#1a1034,#2d1b4e);min-height:100vh;color:#e8e8f0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
-.title{font-size:2.3em;font-weight:bold;background:linear-gradient(135deg,#ffd700,#ff8c00,#8a2be2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;text-align:center}
-.subtitle{color:#d4af37;font-size:1.2em;font-style:italic;text-align:center;margin-bottom:30px}
-.container{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:3px solid rgba(212,175,55,0.5);border-radius:20px;padding:30px;width:100%;max-width:520px}
+html,body{width:100%;overflow-x:hidden}
+body{font-family:Georgia,serif;background:linear-gradient(135deg,#0a0e27,#1a1034,#2d1b4e);min-height:100vh;color:#e8e8f0;display:flex;flex-direction:column;align-items:center;padding:8px;-webkit-tap-highlight-color:transparent}
+.title{font-size:1.4em;background:linear-gradient(135deg,#ffd700,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+.subtitle{color:#d4af37;margin-bottom:6px;font-size:0.8em}
+.box{background:rgba(255,255,255,0.05);border:2px solid rgba(212,175,55,0.5);border-radius:12px;padding:10px;width:calc(100% - 16px);max-width:340px}
 .hidden{display:none!important}
-.trials-banner{position:fixed;top:20px;right:20px;background:rgba(255,215,0,0.2);border:2px solid rgba(255,215,0,0.5);color:#ffd700;padding:12px 20px;border-radius:15px;z-index:1000}
-.back-home{position:fixed;top:20px;left:20px;padding:10px 20px;background:rgba(255,255,255,0.1);border:2px solid rgba(212,175,55,0.3);border-radius:20px;color:#ffd700;text-decoration:none;z-index:1000}
-.redirect-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;z-index:5000;padding:20px}
-.redirect-popup{background:linear-gradient(135deg,#1a1034,#2d1b4e);border:2px solid rgba(255,215,0,0.3);border-radius:20px;padding:30px 25px;max-width:340px;text-align:center}
-.redirect-emoji{font-size:3em;margin-bottom:15px}
-.redirect-title{color:#e8e8f0;font-size:1.2em;margin-bottom:8px}
-.redirect-subtitle{color:#a0a0b8;font-size:0.9em;margin-bottom:25px}
-.redirect-home-btn{display:block;width:100%;padding:15px;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.2);border-radius:12px;color:#e8e8f0;text-decoration:none;margin-bottom:10px;font-family:Georgia,serif}
-.redirect-home-text{color:#888;font-size:0.85em;margin-bottom:20px}
-.redirect-or{display:flex;align-items:center;gap:12px;margin:20px 0;color:#555}
-.redirect-or::before,.redirect-or::after{content:"";flex:1;height:1px;background:rgba(255,255,255,0.1)}
-.redirect-pro-btn{width:100%;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1034;border:none;padding:15px;border-radius:25px;font-weight:bold;cursor:pointer;font-family:Georgia,serif}
-.pin-title{color:#ffd700;font-size:1.5em;text-align:center;margin-bottom:10px}
-.pin-subtitle{color:#b8b8cc;text-align:center;margin-bottom:30px}
-.pin-dots{display:flex;justify-content:center;gap:15px;margin-bottom:30px}
-.pin-dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(212,175,55,0.5);transition:all 0.2s}
-.pin-dot.filled{background:#ffd700;border-color:#ffd700;box-shadow:0 0 10px rgba(255,215,0,0.5)}
-.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;margin:0 auto 20px}
-.pin-key{aspect-ratio:1;font-size:1.8em;border:2px solid rgba(212,175,55,0.3);background:rgba(255,255,255,0.05);color:#e8e8f0;border-radius:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif}
-.pin-key:active{transform:scale(0.95)}
-.pin-key.delete{font-size:1.2em}
-.pin-key.empty{visibility:hidden}
-.pin-message{text-align:center;min-height:24px;margin-top:15px}
-.pin-message.error{color:#ff6b6b}
-.pin-message.success{color:#4ecdc4}
-.pin-toggle{text-align:center;margin-top:25px;color:#b8b8cc}
-.pin-toggle-link{color:#ffd700;cursor:pointer;text-decoration:underline}
-.button{width:100%;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1034;border:none;padding:16px;border-radius:30px;font-size:1.1em;font-weight:bold;cursor:pointer;font-family:Georgia,serif;margin-top:10px}
-.button:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,215,0,0.6)}
-.button.secondary{background:linear-gradient(135deg,#8a2be2,#4b0082);color:#fff}
-.welcome-box{background:rgba(255,215,0,0.1);border:2px solid rgba(255,215,0,0.3);border-radius:15px;padding:20px;margin-bottom:20px;text-align:center}
-.welcome-box h3{color:#ffd700;margin-bottom:8px;font-size:1.3em}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
-.stat-box{background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;text-align:center;border:1px solid rgba(212,175,55,0.2)}
-.stat-value{font-size:1.8em;color:#ffd700;font-weight:bold}
-.stat-label{color:#b8b8cc;font-size:0.85em;margin-top:5px}
-.game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.05);border-radius:12px}
+.banner{background:rgba(255,215,0,0.2);border:1px solid rgba(255,215,0,0.5);color:#ffd700;padding:4px 8px;border-radius:8px;font-size:0.7em}
+.back{padding:4px 8px;background:rgba(255,255,255,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;color:#ffd700;text-decoration:none;font-size:0.7em}
+.top-bar{width:calc(100% - 16px);max-width:340px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.popup-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;z-index:5000;padding:12px}
+.popup{background:linear-gradient(135deg,#1a1034,#2d1b4e);border:2px solid rgba(255,215,0,0.3);border-radius:12px;padding:16px;width:90%;max-width:260px;text-align:center}
+.popup h3{color:#e8e8f0;margin-bottom:4px;font-size:0.95em}
+.popup p{color:#a0a0b8;font-size:0.75em;margin-bottom:12px}
+.popup a{display:block;padding:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#e8e8f0;text-decoration:none;margin-bottom:10px;font-size:0.8em}
+.popup button{width:100%;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1034;border:none;padding:8px;border-radius:12px;font-weight:bold;cursor:pointer;font-size:0.85em}
+.pin-title{color:#ffd700;font-size:1em;text-align:center;margin-bottom:4px}
+.pin-sub{color:#b8b8cc;text-align:center;margin-bottom:12px;font-size:0.75em}
+.dots{display:flex;justify-content:center;gap:8px;margin-bottom:12px}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(212,175,55,0.5)}
+.dot.on{background:#ffd700;border-color:#ffd700}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:180px;margin:0 auto 10px}
+.key{aspect-ratio:1;font-size:1.1em;border:2px solid rgba(212,175,55,0.3);background:rgba(255,255,255,0.05);color:#e8e8f0;border-radius:6px;cursor:pointer}
+.key:active{transform:scale(0.95)}
+.key.empty{visibility:hidden}
+.msg{text-align:center;min-height:16px;font-size:0.75em}
+.msg.err{color:#ff6b6b}
+.msg.ok{color:#4ecdc4}
+.toggle{text-align:center;margin-top:10px;color:#b8b8cc;font-size:0.75em}
+.toggle span{color:#ffd700;cursor:pointer;text-decoration:underline}
+.btn{width:100%;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1034;border:none;padding:10px;border-radius:15px;font-size:0.85em;font-weight:bold;cursor:pointer;margin-top:5px}
+.btn:active{transform:scale(0.98)}
+.btn2{background:linear-gradient(135deg,#8a2be2,#4b0082);color:#fff}
+.welcome{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:8px;padding:10px;margin-bottom:10px;text-align:center}
+.welcome h3{color:#ffd700;margin-bottom:2px;font-size:0.95em}
+.welcome p{font-size:0.75em;color:#b8b8cc}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0}
+.stat{background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;text-align:center;border:1px solid rgba(212,175,55,0.2)}
+.stat b{display:block;font-size:1.2em;color:#ffd700}
+.stat span{color:#b8b8cc;font-size:0.65em}
+.game-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 5px}
 .game-stat{text-align:center}
-.game-stat-value{font-size:1.4em;color:#ffd700;font-weight:bold}
-.game-stat-label{color:#b8b8cc;font-size:0.7em;text-transform:uppercase}
-.aim-arena{position:relative;width:100%;height:320px;background:rgba(0,0,0,0.4);border-radius:15px;border:2px solid rgba(212,175,55,0.3);overflow:hidden;cursor:crosshair;margin-bottom:15px;-webkit-tap-highlight-color:transparent;user-select:none}
-.target{position:absolute;border-radius:50%;cursor:pointer;transform:translate(-50%,-50%);animation:targetPop 0.15s ease-out}
-@keyframes targetPop{from{transform:translate(-50%,-50%) scale(0)}to{transform:translate(-50%,-50%) scale(1)}}
-.target-outer{width:100%;height:100%;border-radius:50%;background:linear-gradient(145deg,#e74c3c,#c0392b);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(231,76,60,0.5)}
-.target-middle{width:60%;height:60%;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
-.target-inner{width:50%;height:50%;border-radius:50%;background:#e74c3c}
-.hit-marker{position:absolute;pointer-events:none;color:#2ecc71;font-size:1.5em;font-weight:bold;animation:hitPop 0.4s ease-out forwards}
-@keyframes hitPop{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-80%) scale(1.3)}}
-.countdown-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
-.countdown-number{font-size:5em;color:#ffd700;font-weight:bold;animation:countPulse 0.5s ease-out}
-@keyframes countPulse{from{transform:scale(1.5);opacity:0}to{transform:scale(1);opacity:1}}
-.countdown-text{color:#b8b8cc;font-size:1.2em;margin-top:10px}
-.size-select{margin:20px 0}
-.size-select label{color:#b8b8cc;display:block;margin-bottom:10px;text-align:center}
-.size-buttons{display:flex;gap:10px;justify-content:center}
-.size-btn{padding:10px 20px;border:2px solid rgba(212,175,55,0.3);background:rgba(255,255,255,0.05);color:#e8e8f0;border-radius:10px;cursor:pointer;font-family:Georgia,serif;font-size:1em;transition:all 0.2s}
-.size-btn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.5)}
-.size-btn.selected{background:rgba(255,215,0,0.2);border-color:#ffd700;color:#ffd700}
-.results-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:3000;padding:20px}
-.results-card{background:linear-gradient(135deg,#1a1034,#2d1b4e);border:3px solid #ffd700;border-radius:25px;padding:35px 25px;max-width:400px;width:100%;text-align:center;animation:popIn 0.4s}
-@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
-.results-icon{font-size:3.5em;margin-bottom:15px}
-.results-title{font-size:1.6em;color:#ffd700;margin-bottom:15px}
-.results-score{font-size:3em;color:#ffd700;font-weight:bold}
-.results-score-label{color:#b8b8cc;margin-bottom:20px}
-.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-.results-stat{background:rgba(255,255,255,0.05);padding:12px;border-radius:10px}
-.results-stat-value{font-size:1.5em;color:#ffd700;font-weight:bold}
-.results-stat-label{font-size:0.8em;color:#b8b8cc}
-.results-record{background:rgba(255,215,0,0.2);border:2px solid #ffd700;border-radius:10px;padding:12px;margin:15px 0;color:#ffd700;font-weight:bold}
-.results-rating{font-size:1.2em;color:#d4af37;margin-bottom:20px}
-.instructions{background:rgba(138,43,226,0.1);border:2px solid rgba(138,43,226,0.3);border-radius:15px;padding:12px;margin-top:12px}
-.instructions h4{color:#8a2be2;margin-bottom:6px;text-align:center;font-size:0.95em}
-.instructions p{color:#c4c4d4;line-height:1.4;text-align:center;font-size:0.85em}
-@media(max-width:768px){.title{font-size:1.9em}.container{padding:20px 15px}.back-home{position:relative;top:auto;left:auto;display:inline-block;margin-bottom:15px}.aim-arena{height:280px}.pin-keypad{max-width:240px}.pin-key{font-size:1.5em}.size-buttons{flex-wrap:wrap}}
+.game-stat b{display:block;font-size:1em;color:#ffd700}
+.game-stat span{color:#b8b8cc;font-size:0.6em}
+.aim-zone{position:relative;width:100%;height:300px;background:rgba(0,0,0,0.4);border:2px solid rgba(212,175,55,0.3);border-radius:12px;overflow:hidden;cursor:crosshair;margin:5px 0}
+.target{position:absolute;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,#ff6b6b 0%,#e74c3c 50%,#c0392b 100%);border:3px solid #fff;box-shadow:0 0 15px rgba(231,76,60,0.6);cursor:pointer;transform:translate(-50%,-50%);transition:transform 0.1s}
+.target:active{transform:translate(-50%,-50%) scale(0.9)}
+.target::before{content:'';position:absolute;top:50%;left:50%;width:10px;height:10px;background:#fff;border-radius:50%;transform:translate(-50%,-50%)}
+.res-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:3000;padding:12px}
+.res{background:linear-gradient(135deg,#1a1034,#2d1b4e);border:2px solid #ffd700;border-radius:12px;padding:16px 12px;width:90%;max-width:300px;text-align:center}
+.res h2{color:#ffd700;margin-bottom:6px;font-size:1.1em}
+.res-score{font-size:2.2em;color:#ffd700;font-weight:bold}
+.res-label{color:#b8b8cc;margin-bottom:10px;font-size:0.8em}
+.res-details{display:flex;justify-content:space-around;margin:10px 0}
+.res-detail{text-align:center}
+.res-detail b{display:block;color:#ffd700;font-size:1.1em}
+.res-detail span{color:#b8b8cc;font-size:0.65em}
+.record{background:rgba(255,215,0,0.2);border:1px solid #ffd700;border-radius:5px;padding:6px;margin:8px 0;color:#ffd700;font-weight:bold;font-size:0.85em}
+.rating{color:#d4af37;margin-bottom:10px;font-size:0.85em}
 </style>
 </head>
 <body>
-<a href="https://hooporiapr-oss.github.io/akashic-works/" class="back-home">← Back to Home</a>
-<div class="title">🎯 Akashic Aim Trainer</div>
-<div class="subtitle">Test Your Precision</div>
-
-<div class="container" id="pinLoginScreen">
+<div class="top-bar"><a href="https://hooporiapr-oss.github.io/akashic-works/" class="back">Home</a><div class="banner" id="bannerEl">3 free</div></div>
+<div class="title">Aim Trainer</div>
+<div class="subtitle">Brain Training</div>
+<div class="box" id="loginBox">
 <div class="pin-title">Enter PIN</div>
-<div class="pin-subtitle">Enter your 4-digit PIN to play</div>
-<div class="pin-dots">
-<div class="pin-dot" id="dot1"></div>
-<div class="pin-dot" id="dot2"></div>
-<div class="pin-dot" id="dot3"></div>
-<div class="pin-dot" id="dot4"></div>
+<div class="pin-sub">Enter your 4-digit PIN</div>
+<div class="dots"><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
+<div class="keypad" id="loginPad"></div>
+<div class="msg" id="loginMsg"></div>
+<div class="toggle">No account? <span id="toCreate">Create PIN</span></div>
 </div>
-<div class="pin-keypad">
-<button class="pin-key" data-num="1">1</button>
-<button class="pin-key" data-num="2">2</button>
-<button class="pin-key" data-num="3">3</button>
-<button class="pin-key" data-num="4">4</button>
-<button class="pin-key" data-num="5">5</button>
-<button class="pin-key" data-num="6">6</button>
-<button class="pin-key" data-num="7">7</button>
-<button class="pin-key" data-num="8">8</button>
-<button class="pin-key" data-num="9">9</button>
-<button class="pin-key empty"></button>
-<button class="pin-key" data-num="0">0</button>
-<button class="pin-key delete">⌫</button>
+<div class="box hidden" id="createBox">
+<div class="pin-title" id="createTitle">Create PIN</div>
+<div class="pin-sub" id="createSub">Choose a 4-digit PIN</div>
+<div class="dots"><div class="dot" id="c1"></div><div class="dot" id="c2"></div><div class="dot" id="c3"></div><div class="dot" id="c4"></div></div>
+<div class="keypad" id="createPad"></div>
+<div class="msg" id="createMsg"></div>
+<div class="toggle">Have PIN? <span id="toLogin">Login</span></div>
 </div>
-<div class="pin-message" id="pinMessage"></div>
-<div class="pin-toggle">No account? <span class="pin-toggle-link" id="showCreatePin">Create PIN</span></div>
+<div class="box hidden" id="dashBox">
+<div class="welcome"><h3>Welcome!</h3><p>Hit 30 targets as fast as you can</p></div>
+<div class="stats"><div class="stat"><b id="dGames">0</b><span>Games</span></div><div class="stat"><b id="dBest">--</b><span>Best (ms)</span></div><div class="stat"><b id="dAvg">--</b><span>Avg (ms)</span></div><div class="stat"><b id="dRate">--</b><span>Rating</span></div></div>
+<button class="btn" id="startBtn">Start Game</button>
+<button class="btn btn2" id="logoutBtn">Logout</button>
 </div>
-
-<div class="container hidden" id="pinCreateScreen">
-<div class="pin-title" id="createPinTitle">Create PIN</div>
-<div class="pin-subtitle" id="createPinSubtitle">Choose a 4-digit PIN</div>
-<div class="pin-dots">
-<div class="pin-dot" id="createDot1"></div>
-<div class="pin-dot" id="createDot2"></div>
-<div class="pin-dot" id="createDot3"></div>
-<div class="pin-dot" id="createDot4"></div>
+<div class="box hidden" id="gameBox">
+<div class="game-info"><div class="game-stat"><b id="gHits">0/30</b><span>Targets</span></div><div class="game-stat"><b id="gTime">0.0s</b><span>Time</span></div><div class="game-stat"><b id="gAvg">--</b><span>Avg (ms)</span></div></div>
+<div class="aim-zone" id="aimZone"><div class="target hidden" id="target"></div></div>
+<button class="btn btn2" id="quitBtn">Quit</button>
 </div>
-<div class="pin-keypad">
-<button class="pin-key" data-num="1">1</button>
-<button class="pin-key" data-num="2">2</button>
-<button class="pin-key" data-num="3">3</button>
-<button class="pin-key" data-num="4">4</button>
-<button class="pin-key" data-num="5">5</button>
-<button class="pin-key" data-num="6">6</button>
-<button class="pin-key" data-num="7">7</button>
-<button class="pin-key" data-num="8">8</button>
-<button class="pin-key" data-num="9">9</button>
-<button class="pin-key empty"></button>
-<button class="pin-key" data-num="0">0</button>
-<button class="pin-key delete">⌫</button>
-</div>
-<div class="pin-message" id="createPinMessage"></div>
-<div class="pin-toggle">Already have a PIN? <span class="pin-toggle-link" id="showLoginPin">Login</span></div>
-</div>
-
-<div class="container hidden" id="dashboardScreen">
-<div class="welcome-box">
-<h3>Welcome Back! 🎯</h3>
-<p style="color:#b8b8cc">How fast can you hit the targets?</p>
-</div>
-<div class="stats-grid">
-<div class="stat-box"><div class="stat-value" id="dashGames">0</div><div class="stat-label">Games</div></div>
-<div class="stat-box"><div class="stat-value" id="dashBest">--</div><div class="stat-label">Best Avg</div></div>
-<div class="stat-box"><div class="stat-value" id="dashAccuracy">--</div><div class="stat-label">Accuracy</div></div>
-<div class="stat-box"><div class="stat-value" id="dashRating">--</div><div class="stat-label">Rating</div></div>
-</div>
-<div class="size-select">
-<label>Target Size</label>
-<div class="size-buttons">
-<button class="size-btn" data-size="80">Large</button>
-<button class="size-btn selected" data-size="60">Medium</button>
-<button class="size-btn" data-size="40">Small</button>
+<div class="res-bg hidden" id="resBg">
+<div class="res">
+<h2>Complete!</h2>
+<div class="res-score" id="resAvg">0 ms</div>
+<div class="res-label">Average Time Per Target</div>
+<div class="res-details"><div class="res-detail"><b id="resTotal">0.0s</b><span>Total Time</span></div><div class="res-detail"><b id="resHits">30</b><span>Targets Hit</span></div></div>
+<div class="record hidden" id="resRecord">New Record!</div>
+<div class="rating" id="resRating">Rating: --</div>
+<button class="btn" id="againBtn">Play Again</button>
+<button class="btn btn2" id="menuBtn">Menu</button>
 </div>
 </div>
-<button class="button" id="startPlayingBtn">🎯 Start Game</button>
-<button class="button secondary" id="dashLogoutBtn">Logout</button>
-</div>
-
-<div class="container hidden" id="gameScreen">
-<div class="game-header">
-<div class="game-stat"><div class="game-stat-value" id="hitsDisplay">0/30</div><div class="game-stat-label">Hits</div></div>
-<div class="game-stat"><div class="game-stat-value" id="avgDisplay">0ms</div><div class="game-stat-label">Avg Time</div></div>
-<div class="game-stat"><div class="game-stat-value" id="accuracyDisplay">100%</div><div class="game-stat-label">Accuracy</div></div>
-</div>
-<div class="aim-arena" id="aimArena">
-<div class="countdown-overlay" id="countdownOverlay">
-<div class="countdown-number" id="countdownNumber">3</div>
-<div class="countdown-text">Get Ready!</div>
+<div class="popup-bg hidden" id="limitPopup">
+<div class="popup">
+<h3 id="limitTitle">Daily limit reached</h3>
+<p id="limitMsg">You used 3 free plays today</p>
+<a href="https://hooporiapr-oss.github.io/akashic-works/">Return Home</a>
+<button id="upgradeBtn">Unlock Unlimited</button>
 </div>
 </div>
-<button class="button secondary" id="gameBackBtn">← Back to Menu</button>
-<div class="instructions">
-<h4>How to Play</h4>
-<p>Click the targets as fast as you can! Hit 30 targets to complete the round.</p>
-</div>
-</div>
-
-<div class="results-overlay hidden" id="resultsOverlay">
-<div class="results-card">
-<div class="results-icon" id="resultsIcon">🎯</div>
-<div class="results-title">Game Complete!</div>
-<div class="results-score" id="resultsScore">0ms</div>
-<div class="results-score-label">Average Time</div>
-<div class="results-stats">
-<div class="results-stat"><div class="results-stat-value" id="resultsHits">0</div><div class="results-stat-label">Hits</div></div>
-<div class="results-stat"><div class="results-stat-value" id="resultsMisses">0</div><div class="results-stat-label">Misses</div></div>
-<div class="results-stat"><div class="results-stat-value" id="resultsAccuracy">0%</div><div class="results-stat-label">Accuracy</div></div>
-<div class="results-stat"><div class="results-stat-value" id="resultsFastest">0ms</div><div class="results-stat-label">Fastest</div></div>
-</div>
-<div class="results-record hidden" id="resultsRecord">🏆 New Personal Record!</div>
-<div class="results-rating" id="resultsRating">Rating: --</div>
-<button class="button" id="playAgainBtn">🔄 Play Again</button>
-<button class="button secondary" id="resultsMenuBtn">Back to Menu</button>
-</div>
-</div>
-
-<div class="redirect-overlay hidden" id="redirectPopup">
-<div class="redirect-popup">
-<div class="redirect-emoji">⏸️</div>
-<div class="redirect-title">Aim Trainer pauses here for today...</div>
-<div class="redirect-subtitle">You have used your 3 free sessions</div>
-<a href="https://hooporiapr-oss.github.io/akashic-works/" class="redirect-home-btn">Return to Home</a>
-<div class="redirect-home-text">Try other free Akashic games</div>
-<div class="redirect-or">or</div>
-<button class="redirect-pro-btn" id="upgradeBtn">Unlock Unlimited Access</button>
-</div>
-</div>
-
 <script>
-var PIN_KEY = "akashic_aim_pin";
-var STATS_KEY = "akashic_aim_stats";
-var TRIES_KEY = "akashic_aim_tries";
-var FREE_TRIES = 3;
-var TOTAL_TARGETS = 30;
-
-function hashPIN(p) {
-var h = 0;
-var s = p + "akashic2024";
-for (var i = 0; i < s.length; i++) {
-h = ((h << 5) - h) + s.charCodeAt(i);
-h = h & h;
-}
-return h.toString(36);
-}
-
-function hasPIN() { return !!localStorage.getItem(PIN_KEY); }
-function verifyPIN(p) { return localStorage.getItem(PIN_KEY) === hashPIN(p); }
-function createPINStore(p) {
-localStorage.setItem(PIN_KEY, hashPIN(p));
-localStorage.setItem(STATS_KEY, JSON.stringify({gamesPlayed:0, bestAvg:null, totalAccuracy:0}));
-}
-function getStats() {
-var s = localStorage.getItem(STATS_KEY);
-return s ? JSON.parse(s) : {gamesPlayed:0, bestAvg:null, totalAccuracy:0};
-}
-function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
-
-function getTriesData() {
-var d = localStorage.getItem(TRIES_KEY);
-if (!d) return {tries:0, lastReset:new Date().toDateString()};
-return JSON.parse(d);
-}
-function saveTriesData(d) { localStorage.setItem(TRIES_KEY, JSON.stringify(d)); }
-
-function canUserPlay() {
-var d = getTriesData();
-if (d.lastReset !== new Date().toDateString()) {
-d.tries = 0;
-d.lastReset = new Date().toDateString();
-}
-saveTriesData(d);
-return {canPlay: d.tries < FREE_TRIES, triesLeft: FREE_TRIES - d.tries};
-}
-
-function recordPlay() {
-var d = getTriesData();
-if (d.lastReset !== new Date().toDateString()) {
-d.tries = 0;
-d.lastReset = new Date().toDateString();
-}
-d.tries++;
-saveTriesData(d);
-updateTriesBanner();
-}
-
-function updateTriesBanner() {
-var s = canUserPlay();
-var old = document.querySelector(".trials-banner");
-if (old) old.remove();
-var b = document.createElement("div");
-b.className = "trials-banner";
-b.textContent = "🎮 " + s.triesLeft + " free " + (s.triesLeft === 1 ? "try" : "tries") + " today";
-document.body.appendChild(b);
-}
-
-function showRedirectPopup() {
-document.getElementById("redirectPopup").classList.remove("hidden");
-}
-
-var currentPIN = "";
-var confirmPIN = "";
-var isConfirming = false;
-var targetSize = 60;
-
-function showScreen(id) {
-var containers = document.querySelectorAll(".container");
-for (var i = 0; i < containers.length; i++) {
-containers[i].classList.add("hidden");
-}
-document.getElementById(id).classList.remove("hidden");
-}
-
-function updatePinDots(prefix, len) {
-for (var i = 1; i <= 4; i++) {
-var dot = document.getElementById(prefix + i);
-if (dot) {
-if (i <= len) dot.classList.add("filled");
-else dot.classList.remove("filled");
-}
-}
-}
-
-function showPinMessage(id, msg, err) {
-var el = document.getElementById(id);
-el.textContent = msg;
-el.className = "pin-message " + (err ? "error" : "success");
-}
-
-function clearPinMessage(id) {
-var el = document.getElementById(id);
-el.textContent = "";
-el.className = "pin-message";
-}
-
-function handleLoginKey(num) {
-if (currentPIN.length < 4) {
-currentPIN += num;
-updatePinDots("dot", currentPIN.length);
-if (currentPIN.length === 4) {
-setTimeout(function() {
-if (verifyPIN(currentPIN)) {
-loadDashboard();
-} else {
-showPinMessage("pinMessage", "Wrong PIN", true);
-currentPIN = "";
-updatePinDots("dot", 0);
-}
-}, 200);
-}
-}
-}
-
-function handleLoginDel() {
-if (currentPIN.length > 0) {
-currentPIN = currentPIN.slice(0, -1);
-updatePinDots("dot", currentPIN.length);
-clearPinMessage("pinMessage");
-}
-}
-
-function handleCreateKey(num) {
-if (confirmPIN.length < 4) {
-confirmPIN += num;
-updatePinDots("createDot", confirmPIN.length);
-if (confirmPIN.length === 4) {
-setTimeout(function() {
-if (!isConfirming) {
-currentPIN = confirmPIN;
-confirmPIN = "";
-isConfirming = true;
-document.getElementById("createPinTitle").textContent = "Confirm PIN";
-document.getElementById("createPinSubtitle").textContent = "Enter your PIN again";
-updatePinDots("createDot", 0);
-} else {
-if (confirmPIN === currentPIN) {
-createPINStore(currentPIN);
-showPinMessage("createPinMessage", "PIN created!", false);
-setTimeout(function() { loadDashboard(); }, 500);
-} else {
-showPinMessage("createPinMessage", "PINs do not match", true);
-currentPIN = "";
-confirmPIN = "";
-isConfirming = false;
-document.getElementById("createPinTitle").textContent = "Create PIN";
-document.getElementById("createPinSubtitle").textContent = "Choose a 4-digit PIN";
-updatePinDots("createDot", 0);
-}
-}
-}, 200);
-}
-}
-}
-
-function handleCreateDel() {
-if (confirmPIN.length > 0) {
-confirmPIN = confirmPIN.slice(0, -1);
-updatePinDots("createDot", confirmPIN.length);
-clearPinMessage("createPinMessage");
-}
-}
-
-function loadDashboard() {
-var stats = getStats();
-document.getElementById("dashGames").textContent = stats.gamesPlayed || 0;
-document.getElementById("dashBest").textContent = stats.bestAvg ? stats.bestAvg + "ms" : "--";
-document.getElementById("dashAccuracy").textContent = stats.gamesPlayed > 0 ? Math.round(stats.totalAccuracy / stats.gamesPlayed) + "%" : "--";
-document.getElementById("dashRating").textContent = getRating(stats.bestAvg);
-showScreen("dashboardScreen");
-updateTriesBanner();
-if (!canUserPlay().canPlay) showRedirectPopup();
-}
-
-function getRating(ms) {
-if (!ms) return "--";
-if (ms <= 300) return "🎯 Sniper";
-if (ms <= 400) return "⭐ Master";
-if (ms <= 500) return "🔥 Expert";
-if (ms <= 650) return "👍 Good";
-return "📚 Learning";
-}
-
-var hits = 0;
-var misses = 0;
-var reactionTimes = [];
-var targetStartTime = 0;
-var gameActive = false;
-var arena = null;
-var currentTarget = null;
-
-function startGame() {
-if (!canUserPlay().canPlay) {
-showRedirectPopup();
-return;
-}
-hits = 0;
-misses = 0;
-reactionTimes = [];
-gameActive = false;
-arena = document.getElementById("aimArena");
-document.getElementById("hitsDisplay").textContent = "0/" + TOTAL_TARGETS;
-document.getElementById("avgDisplay").textContent = "0ms";
-document.getElementById("accuracyDisplay").textContent = "100%";
-document.getElementById("resultsOverlay").classList.add("hidden");
-showScreen("gameScreen");
-startCountdown();
-}
-
-function startCountdown() {
-var overlay = document.getElementById("countdownOverlay");
-var numEl = document.getElementById("countdownNumber");
-overlay.classList.remove("hidden");
-var count = 3;
-numEl.textContent = count;
-var countInterval = setInterval(function() {
-count--;
-if (count > 0) {
-numEl.textContent = count;
-numEl.style.animation = "none";
-numEl.offsetHeight;
-numEl.style.animation = "countPulse 0.5s ease-out";
-} else {
-clearInterval(countInterval);
-overlay.classList.add("hidden");
-gameActive = true;
-spawnTarget();
-}
-}, 800);
-}
-
-function spawnTarget() {
-if (!gameActive) return;
-if (currentTarget) {
-arena.removeChild(currentTarget);
-}
-var padding = targetSize / 2 + 10;
-var maxX = arena.offsetWidth - padding;
-var maxY = arena.offsetHeight - padding;
-var x = padding + Math.random() * (maxX - padding);
-var y = padding + Math.random() * (maxY - padding);
-var target = document.createElement("div");
-target.className = "target";
-target.style.width = targetSize + "px";
-target.style.height = targetSize + "px";
-target.style.left = x + "px";
-target.style.top = y + "px";
-target.innerHTML = '<div class="target-outer"><div class="target-middle"><div class="target-inner"></div></div></div>';
-target.addEventListener("click", function(e) {
-e.stopPropagation();
-handleHit(x, y);
-});
-target.addEventListener("touchstart", function(e) {
-e.preventDefault();
-e.stopPropagation();
-handleHit(x, y);
-}, {passive: false});
-arena.appendChild(target);
-currentTarget = target;
-targetStartTime = performance.now();
-}
-
-function handleHit(x, y) {
-if (!gameActive) return;
-var reactionTime = Math.round(performance.now() - targetStartTime);
-reactionTimes.push(reactionTime);
-hits++;
-var hitMarker = document.createElement("div");
-hitMarker.className = "hit-marker";
-hitMarker.textContent = "+" + reactionTime + "ms";
-hitMarker.style.left = x + "px";
-hitMarker.style.top = y + "px";
-arena.appendChild(hitMarker);
-setTimeout(function() {
-if (hitMarker.parentNode) hitMarker.parentNode.removeChild(hitMarker);
-}, 400);
-updateStats();
-if (hits >= TOTAL_TARGETS) {
-gameOver();
-} else {
-spawnTarget();
-}
-}
-
-function handleMiss(e) {
-if (!gameActive) return;
-if (e.target.classList.contains("target") || e.target.classList.contains("target-outer") || 
-e.target.classList.contains("target-middle") || e.target.classList.contains("target-inner")) return;
-misses++;
-updateStats();
-}
-
-function updateStats() {
-document.getElementById("hitsDisplay").textContent = hits + "/" + TOTAL_TARGETS;
-if (reactionTimes.length > 0) {
-var sum = 0;
-for (var i = 0; i < reactionTimes.length; i++) sum += reactionTimes[i];
-var avg = Math.round(sum / reactionTimes.length);
-document.getElementById("avgDisplay").textContent = avg + "ms";
-}
-var total = hits + misses;
-var accuracy = total > 0 ? Math.round((hits / total) * 100) : 100;
-document.getElementById("accuracyDisplay").textContent = accuracy + "%";
-}
-
-function gameOver() {
-gameActive = false;
-if (currentTarget && currentTarget.parentNode) {
-arena.removeChild(currentTarget);
-currentTarget = null;
-}
-var sum = 0;
-var fastest = reactionTimes[0] || 0;
-for (var i = 0; i < reactionTimes.length; i++) {
-sum += reactionTimes[i];
-if (reactionTimes[i] < fastest) fastest = reactionTimes[i];
-}
-var avgTime = Math.round(sum / reactionTimes.length);
-var total = hits + misses;
-var accuracy = total > 0 ? Math.round((hits / total) * 100) : 100;
-var stats = getStats();
-stats.gamesPlayed++;
-stats.totalAccuracy += accuracy;
-var isRecord = !stats.bestAvg || avgTime < stats.bestAvg;
-if (isRecord) stats.bestAvg = avgTime;
-saveStats(stats);
-recordPlay();
-showResults(avgTime, accuracy, fastest, isRecord);
-}
-
-function showResults(avgTime, accuracy, fastest, isRecord) {
-document.getElementById("resultsScore").textContent = avgTime + "ms";
-document.getElementById("resultsHits").textContent = hits;
-document.getElementById("resultsMisses").textContent = misses;
-document.getElementById("resultsAccuracy").textContent = accuracy + "%";
-document.getElementById("resultsFastest").textContent = fastest + "ms";
-document.getElementById("resultsRating").textContent = "Rating: " + getRating(avgTime);
-document.getElementById("resultsRecord").classList.toggle("hidden", !isRecord);
-document.getElementById("resultsIcon").textContent = avgTime <= 400 ? "🏆" : avgTime <= 550 ? "⭐" : "🎯";
-document.getElementById("resultsOverlay").classList.remove("hidden");
-if (!canUserPlay().canPlay) {
-setTimeout(function() { showRedirectPopup(); }, 2000);
-}
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-var loginKeys = document.querySelectorAll("#pinLoginScreen .pin-key[data-num]");
-for (var i = 0; i < loginKeys.length; i++) {
-loginKeys[i].addEventListener("click", function() { handleLoginKey(this.dataset.num); });
-}
-document.querySelector("#pinLoginScreen .pin-key.delete").addEventListener("click", handleLoginDel);
-
-var createKeys = document.querySelectorAll("#pinCreateScreen .pin-key[data-num]");
-for (var i = 0; i < createKeys.length; i++) {
-createKeys[i].addEventListener("click", function() { handleCreateKey(this.dataset.num); });
-}
-document.querySelector("#pinCreateScreen .pin-key.delete").addEventListener("click", handleCreateDel);
-
-document.getElementById("showCreatePin").addEventListener("click", function() {
-currentPIN = "";
-confirmPIN = "";
-isConfirming = false;
-document.getElementById("createPinTitle").textContent = "Create PIN";
-document.getElementById("createPinSubtitle").textContent = "Choose a 4-digit PIN";
-updatePinDots("createDot", 0);
-clearPinMessage("createPinMessage");
-showScreen("pinCreateScreen");
-});
-
-document.getElementById("showLoginPin").addEventListener("click", function() {
-currentPIN = "";
-updatePinDots("dot", 0);
-clearPinMessage("pinMessage");
-showScreen("pinLoginScreen");
-});
-
-var sizeBtns = document.querySelectorAll(".size-btn");
-for (var i = 0; i < sizeBtns.length; i++) {
-sizeBtns[i].addEventListener("click", function() {
-for (var j = 0; j < sizeBtns.length; j++) {
-sizeBtns[j].classList.remove("selected");
-}
-this.classList.add("selected");
-targetSize = parseInt(this.dataset.size);
-});
-}
-
-document.getElementById("startPlayingBtn").addEventListener("click", function() {
-if (!canUserPlay().canPlay) { showRedirectPopup(); return; }
-startGame();
-});
-
-document.getElementById("dashLogoutBtn").addEventListener("click", function() {
-currentPIN = "";
-updatePinDots("dot", 0);
-showScreen("pinLoginScreen");
-});
-
-document.getElementById("aimArena").addEventListener("click", handleMiss);
-
-document.getElementById("gameBackBtn").addEventListener("click", function() {
-gameActive = false;
-if (currentTarget && currentTarget.parentNode) {
-document.getElementById("aimArena").removeChild(currentTarget);
-currentTarget = null;
-}
-loadDashboard();
-});
-
-document.getElementById("playAgainBtn").addEventListener("click", function() {
-if (!canUserPlay().canPlay) {
-document.getElementById("resultsOverlay").classList.add("hidden");
-showRedirectPopup();
-return;
-}
-startGame();
-});
-
-document.getElementById("resultsMenuBtn").addEventListener("click", function() {
-document.getElementById("resultsOverlay").classList.add("hidden");
-loadDashboard();
-});
-
-document.getElementById("upgradeBtn").addEventListener("click", function() {
-window.location.href = "mailto:support@akashic.works?subject=Pro%20Upgrade";
-});
-
-if (hasPIN()) {
-showScreen("pinLoginScreen");
-} else {
-showScreen("pinCreateScreen");
-}
-});
+(function(){
+var PK="aien1_pin",SK="aien1_stats_",DK="aien1_device",MAX_DAILY=3,MAX_DAYS=3,TARGETS=30;
+var currentPin="",hits=0,times=[],gameStart=0,targetStart=0,timerInt=null;
+function $(id){return document.getElementById(id);}
+function getDeviceId(){var id=localStorage.getItem(DK);if(!id){id='dev_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem(DK,id);}return id;}
+function getToday(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function getDeviceTries(){var key=DK+"_tries";try{var t=JSON.parse(localStorage.getItem(key));if(t&&t.startDate)return t;}catch(e){}return{n:0,d:getToday(),startDate:getToday(),daysUsed:[]};}
+function setDeviceTries(t){localStorage.setItem(DK+"_tries",JSON.stringify(t));}
+function getDaysDiff(startDate){var start=new Date(startDate);var now=new Date();return Math.floor((now-start)/(1000*60*60*24));}
+function canPlay(){var t=getDeviceTries(),today=getToday();var daysSinceStart=getDaysDiff(t.startDate);if(daysSinceStart>=MAX_DAYS)return{ok:false,left:0,expired:true,daysLeft:0};if(t.d!==today){t.n=0;t.d=today;if(t.daysUsed.indexOf(today)===-1)t.daysUsed.push(today);setDeviceTries(t);}return{ok:t.n<MAX_DAILY,left:MAX_DAILY-t.n,expired:false,daysLeft:MAX_DAYS-daysSinceStart};}
+function useTry(){var t=getDeviceTries(),today=getToday();if(t.d!==today){t.n=0;t.d=today;if(t.daysUsed.indexOf(today)===-1)t.daysUsed.push(today);}t.n++;setDeviceTries(t);showBanner();}
+function hash(p){var h=0,s=p+"aien1";for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h&=h;}return h.toString(36);}
+function getPins(){try{return JSON.parse(localStorage.getItem(PK))||{};}catch(e){return{};}}
+function savePins(p){localStorage.setItem(PK,JSON.stringify(p));}
+function checkPin(p){return!!getPins()[hash(p)];}
+function savePin(p){var pins=getPins();pins[hash(p)]={created:Date.now()};savePins(pins);}
+function getStats(){try{return JSON.parse(localStorage.getItem(SK+hash(currentPin)))||{games:0,bestAvg:0,totalAvg:0};}catch(e){return{games:0,bestAvg:0,totalAvg:0};}}
+function setStats(s){localStorage.setItem(SK+hash(currentPin),JSON.stringify(s));}
+function showBanner(){var c=canPlay();$("bannerEl").textContent=c.expired?"Trial ended":c.left+"/"+MAX_DAILY+" (Day "+c.daysLeft+" left)";}
+function showLimit(){var c=canPlay();$("limitTitle").textContent=c.expired?"Free trial ended":"Daily limit reached";$("limitMsg").textContent=c.expired?"Your 3-day free trial has expired":"You used "+MAX_DAILY+" free plays today. "+c.daysLeft+" day(s) left.";$("limitPopup").classList.remove("hidden");}
+function show(id){["loginBox","createBox","dashBox","gameBox"].forEach(function(x){$(x).classList.add("hidden");});$(id).classList.remove("hidden");}
+function setDots(pre,n){for(var i=1;i<=4;i++){var el=$(pre+i);if(el){if(i<=n)el.classList.add("on");else el.classList.remove("on");}}}
+function setMsg(id,t,isErr){var m=$(id);m.textContent=t;m.className="msg "+(isErr?"err":"ok");}
+function getRating(ms){if(!ms||ms<1)return"--";if(ms<=400)return"Genius";if(ms<=500)return"Expert";if(ms<=650)return"Great";if(ms<=800)return"Good";return"Learning";}
+var loginPin="",createPin="",confirmPin="",isConfirming=false;
+function buildKeypad(cid,onDigit,onDel){var c=$(cid);c.innerHTML="";for(var i=1;i<=9;i++){(function(d){var b=document.createElement("button");b.className="key";b.textContent=d;b.onclick=function(){onDigit(d);};c.appendChild(b);})(i);}var e=document.createElement("button");e.className="key empty";c.appendChild(e);var z=document.createElement("button");z.className="key";z.textContent="0";z.onclick=function(){onDigit(0);};c.appendChild(z);var del=document.createElement("button");del.className="key";del.textContent="<";del.onclick=onDel;c.appendChild(del);}
+function setupLogin(){buildKeypad("loginPad",function(d){if(loginPin.length<4){loginPin+=d;setDots("d",loginPin.length);if(loginPin.length===4){setTimeout(function(){if(checkPin(loginPin)){currentPin=loginPin;loadDash();}else{setMsg("loginMsg","Wrong PIN",true);loginPin="";setDots("d",0);}},200);}}},function(){if(loginPin.length>0){loginPin=loginPin.slice(0,-1);setDots("d",loginPin.length);$("loginMsg").textContent="";}});}
+function setupCreate(){buildKeypad("createPad",function(d){if(confirmPin.length<4){confirmPin+=d;setDots("c",confirmPin.length);if(confirmPin.length===4){setTimeout(function(){if(!isConfirming){createPin=confirmPin;confirmPin="";isConfirming=true;$("createTitle").textContent="Confirm PIN";$("createSub").textContent="Enter PIN again";setDots("c",0);}else{if(confirmPin===createPin){savePin(createPin);currentPin=createPin;setMsg("createMsg","PIN created!",false);setTimeout(loadDash,500);}else{setMsg("createMsg","PINs dont match",true);createPin="";confirmPin="";isConfirming=false;$("createTitle").textContent="Create PIN";$("createSub").textContent="Choose a 4-digit PIN";setDots("c",0);}}},200);}}},function(){if(confirmPin.length>0){confirmPin=confirmPin.slice(0,-1);setDots("c",confirmPin.length);$("createMsg").textContent="";}});}
+function loadDash(){var s=getStats();$("dGames").textContent=s.games||0;$("dBest").textContent=s.bestAvg||"--";$("dAvg").textContent=s.games>0?Math.round(s.totalAvg/s.games):"--";$("dRate").textContent=getRating(s.bestAvg);show("dashBox");showBanner();if(!canPlay().ok)showLimit();}
+function spawnTarget(){var zone=$("aimZone"),target=$("target");var zw=zone.offsetWidth,zh=zone.offsetHeight;var margin=35;var x=margin+Math.random()*(zw-margin*2);var y=margin+Math.random()*(zh-margin*2);target.style.left=x+"px";target.style.top=y+"px";target.classList.remove("hidden");targetStart=Date.now();}
+function hitTarget(){var reaction=Date.now()-targetStart;times.push(reaction);hits++;$("gHits").textContent=hits+"/"+TARGETS;var avg=Math.round(times.reduce(function(a,b){return a+b;},0)/times.length);$("gAvg").textContent=avg+"ms";if(hits>=TARGETS){endGame();}else{spawnTarget();}}
+function updateTimer(){var elapsed=(Date.now()-gameStart)/1000;$("gTime").textContent=elapsed.toFixed(1)+"s";}
+function startGame(){if(!canPlay().ok){showLimit();return;}hits=0;times=[];$("gHits").textContent="0/"+TARGETS;$("gTime").textContent="0.0s";$("gAvg").textContent="--";show("gameBox");gameStart=Date.now();timerInt=setInterval(updateTimer,100);setTimeout(spawnTarget,500);}
+function endGame(){if(timerInt)clearInterval(timerInt);$("target").classList.add("hidden");var totalTime=(Date.now()-gameStart)/1000;var avg=Math.round(times.reduce(function(a,b){return a+b;},0)/times.length);var s=getStats();s.games++;s.totalAvg+=avg;var isRec=!s.bestAvg||avg<s.bestAvg;if(isRec)s.bestAvg=avg;setStats(s);useTry();$("resAvg").textContent=avg+" ms";$("resTotal").textContent=totalTime.toFixed(1)+"s";$("resHits").textContent=TARGETS;$("resRating").textContent="Rating: "+getRating(avg);if(isRec){$("resRecord").classList.remove("hidden");}else{$("resRecord").classList.add("hidden");}$("resBg").classList.remove("hidden");if(!canPlay().ok)setTimeout(showLimit,1500);}
+document.addEventListener("DOMContentLoaded",function(){getDeviceId();setupLogin();setupCreate();$("toCreate").onclick=function(){createPin="";confirmPin="";isConfirming=false;$("createTitle").textContent="Create PIN";$("createSub").textContent="Choose a 4-digit PIN";setDots("c",0);$("createMsg").textContent="";show("createBox");};$("toLogin").onclick=function(){loginPin="";setDots("d",0);$("loginMsg").textContent="";show("loginBox");};$("startBtn").onclick=function(){if(!canPlay().ok){showLimit();return;}startGame();};$("logoutBtn").onclick=function(){loginPin="";currentPin="";setDots("d",0);show("loginBox");};$("quitBtn").onclick=function(){if(timerInt)clearInterval(timerInt);$("target").classList.add("hidden");loadDash();};$("target").onclick=function(e){e.stopPropagation();hitTarget();};$("againBtn").onclick=function(){$("resBg").classList.add("hidden");if(!canPlay().ok){showLimit();return;}startGame();};$("menuBtn").onclick=function(){$("resBg").classList.add("hidden");loadDash();};$("upgradeBtn").onclick=function(){location.href="mailto:support@akashic.works?subject=Pro%20Upgrade";};show("loginBox");showBanner();});
+})();
 </script>
 </body>
 </html>
